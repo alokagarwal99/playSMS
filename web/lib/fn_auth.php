@@ -12,13 +12,32 @@ function validatelogin($username,$password) {
 	$db_result = dba_query($db_query);
 	$db_row = dba_fetch_array($db_result);
 	$res_password = trim($db_row['password']);
-	if ($password && $res_password && ($password==$res_password)) {
+	// AA 1/08/2012  Compare encrypted password to that saved in the database
+	if ($password && $res_password && (crypt($password, $res_password)==$res_password)) {
 		$ticket = md5(mktime().$username);
 		return $ticket;
 	} else {
 		return false;
 	}
 }
+
+/**
+ * reset password.
+ * @param string $username Username
+ * @param password $password Password
+ *
+ */
+function auth_setpass($username, $password) {
+	$db_query = "UPDATE "._DB_PREF_."_tblUser SET password='".crypt($password)."' ";
+	$db_query .= "WHERE username='".$username."'";
+	$db_result = dba_query($db_query);
+	logger_print("u:".$username." password set", 3, "setpass");
+	//$error_string = _('You have been logged out');
+	//$errid = logger_set_error_string($error_string);
+	//header("Location: ".$core_config['http_path']['base']."?errid=".$errid);
+	//exit();
+}
+
 
 /**
  * Set the language for the user, if it's no defined just leave it with the default
@@ -202,11 +221,15 @@ function auth_forgot() {
 			$db_result = dba_query($db_query);
 			if ($db_row = dba_fetch_array($db_result)) {
 				if ($password = $db_row['password']) {
-					$subject = "[SMSGW] "._('Password recovery');
+					// 01/08/2012 AA: We can no longer recover a password - only reset it
+					$newpass = substr (str_shuffle($password), rand(0,20), rand(8,12));
+					logger_print ("Auth_forgot(): New password is ".$newpass, 3, "forgot");
+					auth_setpass($username,$newpass);
+					$subject = "[SMSGW] "._('Password reset');
 					$body = $core_config['main']['cfg_web_title']."\n";
 					$body .= $core_config['http_path']['base']."\n\n";
 					$body .= _('Username')."\t: $username\n";
-					$body .= _('Password')."\t: $password\n\n";
+					$body .= _('Password')."\t: $newpass\n\n";
 					$body .= $core_config['main']['cfg_email_footer']."\n\n";
 					if (sendmail($core_config['main']['cfg_email_service'],$email,$subject,$body)) {
 						$error_string = _('Password has been sent to your email');

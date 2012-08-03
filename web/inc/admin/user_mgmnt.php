@@ -190,7 +190,8 @@ switch ($op)
 		$up_mobile = $_POST['up_mobile'];
 		$up_sender = $_POST['up_sender'];
 		$up_footer = $_POST['up_footer'];
-		$up_password = $_POST['up_password'];
+                // 01/08/2012 AA: encrypt password
+                $up_password = crypt($_POST['up_password']);
 		$up_status = $_POST['up_status'];
 		$up_credit = $_POST['up_credit'];
 		$up_timezone = ( $_POST['up_timezone'] ? $_POST['up_timezone'] : $gateway_timezone );
@@ -299,7 +300,8 @@ switch ($op)
 		$add_mobile = $_POST['add_mobile'];
 		$add_sender = $_POST['add_sender'];
 		$add_footer = $_POST['add_footer'];
-		$add_password = $_POST['add_password'];
+                // 01/08/2012 AA: encrypt password
+		$add_password = crypt($_POST['add_password']);
 		$add_credit = $_POST['add_credit'];
 		$add_status = $_POST['add_status'];
 		$add_timezone = $_POST['add_timezone'];

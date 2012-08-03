@@ -183,6 +183,8 @@ switch ($op)
 				$chg_pwd = "";
 				if ($up_password && $up_password_conf && ($up_password == $up_password_conf))
 				{
+                                        // AA: Encrypt the password before storing
+                                        $up_password = crypt($up_password);
 					$chg_pwd = ",password='$up_password'";
 				}
 				$db_query = "
